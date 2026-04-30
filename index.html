@@ -6,379 +6,76 @@
 <title>番茄时钟</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #1a1a2e;
-    color: #eee;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-  }
-
-  .mode-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 40px;
-    background: #16213e;
-    padding: 4px;
-    border-radius: 12px;
-  }
-
-  .mode-tab {
-    padding: 8px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #888;
-    transition: all 0.2s;
-    border: none;
-    background: none;
-  }
-
-  .mode-tab.active {
-    background: var(--tab-active-bg, #e94560);
-    color: #fff;
-    font-weight: 600;
-  }
-
-  .timer-ring {
-    position: relative;
-    width: 280px;
-    height: 280px;
-    margin-bottom: 36px;
-  }
-
-  .timer-ring svg {
-    transform: rotate(-90deg);
-    width: 100%;
-    height: 100%;
-  }
-
-  .timer-ring circle {
-    fill: none;
-    stroke-width: 8;
-  }
-
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; }
+  .mode-tabs { display: flex; gap: 4px; margin-bottom: 40px; background: #16213e; padding: 4px; border-radius: 12px; }
+  .mode-tab { padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #888; transition: all 0.2s; border: none; background: none; }
+  .mode-tab.active { background: var(--tab-active-bg, #e94560); color: #fff; font-weight: 600; }
+  .timer-ring { position: relative; width: 280px; height: 280px; margin-bottom: 36px; }
+  .timer-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+  .timer-ring circle { fill: none; stroke-width: 8; }
   .bg-ring { stroke: #2a2a4a; }
-
-  .progress-ring {
-    stroke: var(--ring-color, #e94560);
-    stroke-linecap: round;
-    transition: stroke 0.3s ease;
-  }
-
-  .timer-display {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .time-text {
-    font-size: 64px;
-    font-weight: 200;
-    letter-spacing: -2px;
-    font-variant-numeric: tabular-nums;
-    color: #fff;
-  }
-
-  .mode-label {
-    font-size: 13px;
-    color: #666;
-    margin-top: 4px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .controls {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 32px;
-  }
-
-  .btn {
-    padding: 12px 28px;
-    border-radius: 50px;
-    border: none;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .btn-primary {
-    background: var(--btn-primary-bg, #e94560);
-    color: #fff;
-  }
-
+  .progress-ring { stroke: var(--ring-color, #e94560); stroke-linecap: round; transition: stroke 0.3s ease; }
+  .timer-display { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .time-text { font-size: 64px; font-weight: 200; letter-spacing: -2px; font-variant-numeric: tabular-nums; color: #fff; }
+  .mode-label { font-size: 13px; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .controls { display: flex; gap: 12px; margin-bottom: 32px; }
+  .btn { padding: 12px 28px; border-radius: 50px; border: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: var(--btn-primary-bg, #e94560); color: #fff; }
   .btn-primary:hover { opacity: 0.9; }
-
-  .btn-secondary {
-    background: #2a2a4a;
-    color: #aaa;
-  }
-
+  .btn-secondary { background: #2a2a4a; color: #aaa; }
   .btn-secondary:hover { background: #3a3a5a; color: #fff; }
-
-  .btn.stop-btn {
-    background: #2a2a4a;
-    color: #ccc;
-    border: 1px solid #555;
-    padding: 12px 20px;
-  }
-
+  .btn.stop-btn { background: #2a2a4a; color: #ccc; border: 1px solid #555; padding: 12px 20px; }
   .btn.stop-btn:hover { background: #3a3a5a; color: #fff; }
-
   .btn:active { transform: scale(0.96); }
-
-  .stats {
-    display: flex;
-    gap: 20px;
-  }
-
-  .stat {
-    text-align: center;
-  }
-
-  .stat-value {
-    font-size: 28px;
-    font-weight: 600;
-    color: #e94560;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 2px;
-  }
-
-  .settings-toggle {
-    margin-top: 28px;
-    background: none;
-    border: none;
-    color: #444;
-    font-size: 12px;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  .settings-panel {
-    margin-top: 16px;
-    background: #16213e;
-    padding: 20px 28px;
-    border-radius: 12px;
-    display: none;
-    flex-direction: column;
-    gap: 14px;
-    min-width: 260px;
-  }
-
+  .stats { display: flex; gap: 20px; }
+  .stat { text-align: center; }
+  .stat-value { font-size: 28px; font-weight: 600; color: #e94560; }
+  .stat-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  .settings-toggle { margin-top: 28px; background: none; border: none; color: #444; font-size: 12px; cursor: pointer; text-decoration: underline; }
+  .settings-panel { margin-top: 16px; background: #16213e; padding: 20px 28px; border-radius: 12px; display: none; flex-direction: column; gap: 14px; min-width: 260px; }
   .settings-panel.open { display: flex; }
-
-  .setting-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    color: #aaa;
-  }
-
-  .setting-row input {
-    width: 64px;
-    background: #1a1a2e;
-    border: 1px solid #333;
-    border-radius: 6px;
-    color: #fff;
-    padding: 4px 10px;
-    font-size: 14px;
-    text-align: center;
-  }
-
-  .setting-row input:focus {
-    outline: none;
-    border-color: var(--ring-color, #e94560);
-  }
-
-  .keyboard-hints {
-    margin-top: 20px;
-    font-size: 11px;
-    color: #333;
-    text-align: center;
-  }
-
-  .keyboard-hints kbd {
-    background: #2a2a4a;
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: #666;
-  }
-
-  .notification {
-    position: fixed;
-    inset: 0;
-    background: rgba(233,69,96,0.95);
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    color: #fff;
-    padding: 24px 20px;
-  }
-
+  .setting-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #aaa; }
+  .setting-row input { width: 64px; background: #1a1a2e; border: 1px solid #333; border-radius: 6px; color: #fff; padding: 4px 10px; font-size: 14px; text-align: center; }
+  .setting-row input:focus { outline: none; border-color: var(--ring-color, #e94560); }
+  .keyboard-hints { margin-top: 20px; font-size: 11px; color: #333; text-align: center; }
+  .keyboard-hints kbd { background: #2a2a4a; padding: 2px 6px; border-radius: 4px; color: #666; }
+  .notification { position: fixed; inset: 0; background: rgba(233,69,96,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: #fff; padding: 24px 20px; }
   .notification.show { display: flex; }
   .notification.green { background: rgba(39, 174, 96, 0.95); }
-
-  .notification h2 {
-    font-size: 32px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .notification p {
-    font-size: 16px;
-    opacity: 0.85;
-    margin-bottom: 4px;
-  }
-
-  .notification input[type="text"] {
-    margin-top: 14px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 8px;
-    color: #fff;
-    padding: 10px 16px;
-    font-size: 15px;
-    width: 300px;
-    text-align: center;
-  }
-
+  .notification h2 { font-size: 32px; font-weight: 600; margin-bottom: 6px; }
+  .notification p { font-size: 16px; opacity: 0.85; margin-bottom: 4px; }
+  .notification input[type="text"] { margin-top: 14px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); border-radius: 8px; color: #fff; padding: 10px 16px; font-size: 15px; width: 300px; text-align: center; }
   .notification input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
-
-  .notification .btn-group {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .notification .btn {
-    background: #fff;
-    color: #333;
-    padding: 10px 24px;
-    font-size: 14px;
-  }
-
-  .notification .btn.skip {
-    background: rgba(255,255,255,0.2);
-    color: #fff;
-  }
-
-  .faq-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-    justify-content: center;
-    max-width: 340px;
-  }
-
-  .faq-chip {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 12px;
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
+  .notification .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+  .notification .btn { background: #fff; color: #333; padding: 10px 24px; font-size: 14px; }
+  .notification .btn.skip { background: rgba(255,255,255,0.2); color: #fff; }
+  .faq-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; justify-content: center; max-width: 340px; }
+  .faq-chip { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 12px; font-size: 12px; color: #fff; cursor: pointer; transition: background 0.15s; }
   .faq-chip:hover { background: rgba(255,255,255,0.3); }
   .faq-chip.work { border-color: rgba(233,69,96,0.6); }
   .faq-chip.life { border-color: rgba(39,174,96,0.6); }
-
-  .activity-section {
-    margin-top: 28px;
-    width: 320px;
-    display: none;
-  }
-
+  .activity-section { margin-top: 28px; width: 320px; display: none; }
   .activity-section.open { display: block; }
-
-  .activity-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .activity-header span {
-    font-size: 12px;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .activity-header button {
-    background: none;
-    border: none;
-    color: #444;
-    font-size: 11px;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  .activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .activity-item {
-    display: flex;
-    align-items: center;
-    background: #16213e;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    gap: 6px;
-  }
-
-  .activity-item .activity-type {
-    font-size: 9px;
-    padding: 1px 5px;
-    border-radius: 4px;
-    flex-shrink: 0;
-  }
-
+  .activity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .activity-header span { font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+  .activity-header button { background: none; border: none; color: #444; font-size: 11px; cursor: pointer; text-decoration: underline; }
+  .activity-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+  .activity-item { display: flex; align-items: center; background: #16213e; padding: 8px 12px; border-radius: 8px; font-size: 12px; gap: 6px; }
+  .activity-item .activity-type { font-size: 9px; padding: 1px 5px; border-radius: 4px; flex-shrink: 0; }
   .activity-item .activity-type.work { background: rgba(233,69,96,0.2); color: #e94560; }
   .activity-item .activity-type.life { background: rgba(39,174,96,0.2); color: #27ae60; }
-
   .activity-item .activity-desc { color: #ccc; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .activity-item .activity-time { color: #555; flex-shrink: 0; }
+  .activity-item .activity-time { color: #555; flex-shrink: 0; font-size: 11px; }
   .activity-item .activity-del { background: none; border: none; color: #444; cursor: pointer; font-size: 11px; padding: 0; flex-shrink: 0; }
-
   .empty-log { font-size: 12px; color: #333; text-align: center; padding: 12px; }
 </style>
 </head>
 <body>
-
 <div class="mode-tabs">
   <button class="mode-tab active" data-mode="work" style="--tab-active-bg: #e94560;">专注</button>
   <button class="mode-tab" data-mode="short" style="--tab-active-bg: #27ae60;">短休</button>
   <button class="mode-tab" data-mode="free" style="--tab-active-bg: #27ae60;">自由</button>
 </div>
-
 <div class="timer-ring" style="--ring-color: #e94560;">
   <svg viewBox="0 0 280 280">
     <circle class="bg-ring" cx="140" cy="140" r="130"/>
@@ -389,39 +86,22 @@
     <div class="mode-label" id="modeLabel">专注时间</div>
   </div>
 </div>
-
 <div class="controls">
   <button class="btn btn-primary" id="startBtn">开始</button>
   <button class="btn btn-secondary" id="resetBtn">重置</button>
   <button class="btn stop-btn" id="stopBtn" style="display:none">停止</button>
 </div>
-
 <div class="stats">
-  <div class="stat">
-    <div class="stat-value" id="sessionCount">0</div>
-    <div class="stat-label">番茄</div>
-  </div>
-  <div class="stat">
-    <div class="stat-value" id="totalMinutes">0</div>
-    <div class="stat-label">专注分</div>
-  </div>
-  <div class="stat">
-    <div class="stat-value" id="totalBreakMinutes">0</div>
-    <div class="stat-label">休息分</div>
-  </div>
+  <div class="stat"><div class="stat-value" id="sessionCount">0</div><div class="stat-label">番茄</div></div>
+  <div class="stat"><div class="stat-value" id="totalMinutes">0</div><div class="stat-label">专注分</div></div>
+  <div class="stat"><div class="stat-value" id="totalBreakMinutes">0</div><div class="stat-label">休息分</div></div>
 </div>
-
 <button class="settings-toggle" id="settingsToggle">设置</button>
-
 <div class="settings-panel" id="settingsPanel">
   <div class="setting-row"><span>专注时长（分钟）</span><input type="number" id="workDuration" value="25" min="1" max="120"></div>
   <div class="setting-row"><span>短休时长（分钟）</span><input type="number" id="shortDuration" value="5" min="1" max="30"></div>
 </div>
-
-<div class="keyboard-hints">
-  <kbd>Space</kbd> 开始/暂停 &nbsp;·&nbsp; <kbd>R</kbd> 重置/停止 &nbsp;·&nbsp; <kbd>1</kbd> 专注 &nbsp;·&nbsp; <kbd>2</kbd> 短休 &nbsp;·&nbsp; <kbd>3</kbd> 自由
-</div>
-
+<div class="keyboard-hints"><kbd>Space</kbd> 开始/暂停 &nbsp;·&nbsp; <kbd>R</kbd> 重置/停止 &nbsp;·&nbsp; <kbd>1</kbd> 专注 &nbsp;·&nbsp; <kbd>2</kbd> 短休 &nbsp;·&nbsp; <kbd>3</kbd> 自由</div>
 <div class="notification" id="notification">
   <h2 id="notifTitle">休息一下！</h2>
   <p id="notifBody">专注时间结束，适当休息</p>
@@ -429,12 +109,10 @@
   <div class="faq-chips" id="faqChips" style="display:none"></div>
   <div class="btn-group" id="notifBtns"><button class="btn" id="notifBtn">继续</button></div>
 </div>
-
 <div class="activity-section" id="activitySection">
   <div class="activity-header"><span>今日记录</span><button id="clearLog">清空</button></div>
   <div class="activity-list" id="activityList"></div>
 </div>
-
 <script>
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playTone(freq, duration, type = 'sine') {
@@ -446,38 +124,36 @@ function playTone(freq, duration, type = 'sine') {
   osc.start(); osc.stop(audioCtx.currentTime + duration);
 }
 function playBell() { playTone(830, 0.15, 'sine'); setTimeout(() => playTone(1100, 0.4, 'sine'), 160); }
-
 const WORK_KW = ['工作','任务','项目','报告','邮件','客户','会议','分析','数据','文档','方案','审核','跟进','沟通','bd','bluetti','亚马逊','广告','选品','销售','运营','独立站','社媒','内容','文案','投放','google','meta','facebook','instagram','tiktok','youtube','写','整理','复盘','思考','学习','研究','视频会议','ppt','excel','表格','slides','deck','campaign','seo','sem','review','listing','sku','asin','cpa','roi','转化'];
 const LIFE_KW = ['吃饭','午休','散步','运动','健身','跑步','阅读','视频','游戏','娱乐','睡觉','休息','冥想','咖啡','茶','购物','家务','洗澡','通勤','交通','看剧','综艺','电影','音乐','抖音','小红书','微信','朋友圈','微博','b站','bilibili','外卖','做饭','清洁','遛狗','猫','孩子','小孩','家人','朋友','聊天','电话','短信','刷'];
 function classify(text) {
-  const t = text.toLowerCase();
-  let w = 0, l = 0;
+  const t = text.toLowerCase(); let w = 0, l = 0;
   WORK_KW.forEach(k => { if (t.includes(k)) w++; });
   LIFE_KW.forEach(k => { if (t.includes(k)) l++; });
   return w > l ? 'work' : l > w ? 'life' : 'work';
 }
 function getTopSuggestions(existingLog, limit = 8) {
   const freq = {};
-  existingLog.forEach(item => {
-    const d = (item.desc || '').trim();
-    if (d && d !== '(无描述)') freq[d] = (freq[d] || 0) + item.dur;
-  });
+  existingLog.forEach(item => { const d = (item.desc || '').trim(); if (d && d !== '(无描述)') freq[d] = (freq[d] || 0) + item.dur; });
   return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, limit).map(([desc]) => ({ desc, cat: classify(desc) }));
 }
-
+function subMinutes(timeStr, mins) {
+  const [h, m] = timeStr.split(':').map(Number);
+  const total = h * 60 + m - mins;
+  const nh = Math.floor(Math.max(0, total) / 60) % 24;
+  const nm = Math.max(0, total) % 60;
+  return String(nh).padStart(2, '0') + ':' + String(nm).padStart(2, '0');
+}
 const MODE_COLORS = { work: '#e94560', short: '#27ae60', free: '#27ae60' };
 const MODE_LABELS = { work: '专注时间', short: '短休息', free: '自由计时' };
 const CIRCUMFERENCE = 2 * Math.PI * 130;
-
 let settings = { work: 25, short: 5 };
 let mode = 'work', totalSeconds = 25 * 60, remaining = totalSeconds, elapsed = 0;
 let running = false, interval = null;
 let completedPomodoros = 0, totalBreakMinutes = 0;
 const todayDate = new Date().toDateString();
-
 const saved = localStorage.getItem('pomodoro_settings');
 if (saved) settings = JSON.parse(saved);
-
 const savedDate = localStorage.getItem('pomodoro_date');
 if (savedDate !== todayDate) {
   completedPomodoros = 0; totalBreakMinutes = 0;
@@ -489,7 +165,6 @@ if (savedDate !== todayDate) {
   completedPomodoros = parseInt(localStorage.getItem('pomodoro_count') || '0');
   totalBreakMinutes = parseInt(localStorage.getItem('pomodoro_break') || '0');
 }
-
 const $ = id => document.getElementById(id);
 const progressCircle = $('progressCircle'), timeDisplay = $('timeDisplay'), modeLabel = $('modeLabel');
 const startBtn = $('startBtn'), resetBtn = $('resetBtn'), stopBtn = $('stopBtn');
@@ -497,14 +172,11 @@ const notif = $('notification'), notifTitle = $('notifTitle'), notifBody = $('no
 const activityInput = $('activityInput'), notifBtns = $('notifBtns'), faqChips = $('faqChips');
 const activitySection = $('activitySection'), activityList = $('activityList');
 const timerRing = document.querySelector('.timer-ring');
-
 progressCircle.style.strokeDasharray = CIRCUMFERENCE;
-
 function fmt(secs) {
   if (secs >= 3600) { const h = Math.floor(secs / 3600); const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0'); const s = (secs % 60).toString().padStart(2, '0'); return h + ':' + m + ':' + s; }
   return Math.floor(secs / 60).toString().padStart(2, '0') + ':' + (secs % 60).toString().padStart(2, '0');
 }
-
 function applyTheme(m) {
   const color = MODE_COLORS[m];
   document.documentElement.style.setProperty('--ring-color', color);
@@ -513,13 +185,11 @@ function applyTheme(m) {
   stopBtn.style.display = m === 'free' ? 'inline-block' : 'none';
   resetBtn.style.display = m === 'free' ? 'none' : 'inline-block';
 }
-
 function updateDisplay() {
   if (mode === 'free') { timeDisplay.textContent = fmt(elapsed); progressCircle.style.strokeDashoffset = 0; }
   else { timeDisplay.textContent = fmt(remaining); progressCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - (1 - remaining / totalSeconds)); }
   modeLabel.textContent = MODE_LABELS[mode];
 }
-
 function switchMode(newMode) {
   clearInterval(interval); mode = newMode; running = false; elapsed = 0;
   if (mode === 'free') { totalSeconds = 0; remaining = 0; startBtn.textContent = '开始'; activitySection.classList.add('open'); renderLog(); }
@@ -528,7 +198,6 @@ function switchMode(newMode) {
   document.querySelectorAll('.mode-tab').forEach(t => { t.classList.toggle('active', t.dataset.mode === mode); });
   updateDisplay();
 }
-
 function tick() {
   if (mode === 'free') { elapsed++; updateDisplay(); }
   else {
@@ -551,7 +220,6 @@ function tick() {
     }
   }
 }
-
 function buildFaqChips() {
   const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
   const suggestions = getTopSuggestions(log, 8);
@@ -561,7 +229,6 @@ function buildFaqChips() {
     faqChips.querySelectorAll('.faq-chip').forEach(chip => { chip.addEventListener('click', () => { activityInput.value = chip.dataset.desc; }); });
   } else { faqChips.style.display = 'none'; }
 }
-
 function showWorkDoneNotif() {
   notifTitle.textContent = '专注完成！'; notifBody.textContent = '刚才完成了什么？';
   activityInput.style.display = 'block'; activityInput.value = ''; faqChips.style.display = 'none';
@@ -571,23 +238,18 @@ function showWorkDoneNotif() {
   document.getElementById('notifSave').addEventListener('click', saveWorkActivity);
   document.getElementById('notifSkip').addEventListener('click', skipWorkActivity);
 }
-
 function saveWorkActivity() {
   const desc = activityInput.value.trim();
   const endTime = new Date().toTimeString().slice(0, 5);
+  const dur = settings.work * 60;
   const cat = classify(desc) || 'work';
   const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
-  log.unshift({ desc: desc || '(无描述)', time: endTime, dur: settings.work * 60, cat, type: 'work' });
+  log.unshift({ desc: desc || '(无描述)', time: endTime, dur, cat, type: 'work' });
   localStorage.setItem('pomodoro_log', JSON.stringify(log));
   notif.classList.remove('show'); faqChips.style.display = 'none'; renderLog();
   showNotif('短休息！', '完成了 ' + completedPomodoros + ' 个番茄', false);
 }
-
-function skipWorkActivity() {
-  notif.classList.remove('show'); faqChips.style.display = 'none';
-  showNotif('短休息！', '完成了 ' + completedPomodoros + ' 个番茄', false);
-}
-
+function skipWorkActivity() { notif.classList.remove('show'); faqChips.style.display = 'none'; showNotif('短休息！', '完成了 ' + completedPomodoros + ' 个番茄', false); }
 function showFreeNotif() {
   if (elapsed < 5) { elapsed = 0; updateDisplay(); startBtn.textContent = '开始'; return; }
   notifTitle.textContent = '记录一下'; notifBody.textContent = '刚才在做什么？';
@@ -598,7 +260,6 @@ function showFreeNotif() {
   document.getElementById('notifSave').addEventListener('click', saveFreeActivity);
   document.getElementById('notifSkip').addEventListener('click', skipFreeActivity);
 }
-
 function saveFreeActivity() {
   const desc = activityInput.value.trim();
   const endTime = new Date().toTimeString().slice(0, 5);
@@ -609,14 +270,8 @@ function saveFreeActivity() {
   notif.classList.remove('show'); faqChips.style.display = 'none';
   elapsed = 0; updateDisplay(); renderLog(); startBtn.textContent = '开始';
 }
-
-function skipFreeActivity() {
-  notif.classList.remove('show'); faqChips.style.display = 'none';
-  elapsed = 0; updateDisplay(); startBtn.textContent = '开始';
-}
-
+function skipFreeActivity() { notif.classList.remove('show'); faqChips.style.display = 'none'; elapsed = 0; updateDisplay(); startBtn.textContent = '开始'; }
 function stopFreeTimer() { if (mode !== 'free') return; clearInterval(interval); running = false; showFreeNotif(); }
-
 function showNotif(title, body, isBreakEnd) {
   notifTitle.textContent = title; notifBody.textContent = body;
   activityInput.style.display = 'none'; faqChips.style.display = 'none';
@@ -624,18 +279,17 @@ function showNotif(title, body, isBreakEnd) {
   notif.className = 'notification show' + (isBreakEnd ? '' : ' green');
   document.getElementById('notifBtn').addEventListener('click', () => { notif.classList.remove('show'); switchMode(mode === 'work' ? 'short' : 'work'); });
 }
-
 function renderLog() {
   const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
   if (log.length === 0) { activityList.innerHTML = '<div class="empty-log">暂无记录</div>'; return; }
   activityList.innerHTML = log.map((item, i) => {
     const typeLabel = item.type === 'work' ? '专注' : '自由';
     const tagClass = item.cat || 'work';
-    const tagLabel = item.cat === 'life' ? '生活' : '工作';
+    const startTime = subMinutes(item.time, Math.floor(item.dur / 60));
     return '<div class="activity-item">' +
       '<span class="activity-type ' + tagClass + '">' + typeLabel + '</span>' +
       '<span class="activity-desc">' + escapeHtml(item.desc) + '</span>' +
-      '<span class="activity-time">' + item.time + ' · ' + fmt(item.dur) + '</span>' +
+      '<span class="activity-time">' + startTime + ' → ' + item.time + ' · ' + fmt(item.dur) + '</span>' +
       '<button class="activity-del" data-i="' + i + '">×</button></div>';
   }).join('');
   activityList.querySelectorAll('.activity-del').forEach(btn => {
@@ -646,28 +300,19 @@ function renderLog() {
     });
   });
 }
-
 function escapeHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
 document.getElementById('clearLog').addEventListener('click', () => { localStorage.setItem('pomodoro_log', JSON.stringify([])); renderLog(); });
-
 startBtn.addEventListener('click', () => {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   if (running) { clearInterval(interval); running = false; startBtn.textContent = '继续'; }
   else { running = true; interval = setInterval(tick, 1000); startBtn.textContent = '暂停'; }
 });
-
 resetBtn.addEventListener('click', () => { clearInterval(interval); remaining = totalSeconds; running = false; startBtn.textContent = '开始'; updateDisplay(); });
 stopBtn.addEventListener('click', stopFreeTimer);
-
 document.querySelectorAll('.mode-tab').forEach(tab => { tab.addEventListener('click', () => switchMode(tab.dataset.mode)); });
-
 $('settingsToggle').addEventListener('click', () => { $('settingsPanel').classList.toggle('open'); });
-
 $('workDuration').addEventListener('change', e => { settings.work = parseInt(e.target.value) || 1; localStorage.setItem('pomodoro_settings', JSON.stringify(settings)); if (mode === 'work' && !running) { totalSeconds = settings.work * 60; remaining = totalSeconds; updateDisplay(); } });
-
 $('shortDuration').addEventListener('change', e => { settings.short = parseInt(e.target.value) || 1; localStorage.setItem('pomodoro_settings', JSON.stringify(settings)); if (mode === 'short' && !running) { totalSeconds = settings.short * 60; remaining = totalSeconds; updateDisplay(); } });
-
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   if (e.code === 'Space') { e.preventDefault(); startBtn.click(); }
@@ -676,9 +321,7 @@ document.addEventListener('keydown', e => {
   else if (e.code === 'Digit2' || e.code === 'Numpad2') { switchMode('short'); }
   else if (e.code === 'Digit3' || e.code === 'Numpad3') { switchMode('free'); }
 });
-
 document.addEventListener('visibilitychange', () => { if (document.hidden && mode === 'free' && running && elapsed > 0) { stopFreeTimer(); } });
-
 applyTheme('work'); updateDisplay();
 document.getElementById('sessionCount').textContent = completedPomodoros;
 document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
