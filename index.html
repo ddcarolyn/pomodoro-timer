@@ -126,6 +126,15 @@
 
   .btn-secondary:hover { background: #3a3a5a; color: #fff; }
 
+  .btn.stop-btn {
+    background: #2a2a4a;
+    color: #ccc;
+    border: 1px solid #555;
+    padding: 12px 20px;
+  }
+
+  .btn.stop-btn:hover { background: #3a3a5a; color: #fff; }
+
   .btn:active { transform: scale(0.96); }
 
   .stats {
@@ -222,6 +231,7 @@
     justify-content: center;
     z-index: 100;
     color: #fff;
+    padding: 24px 20px;
   }
 
   .notification.show { display: flex; }
@@ -230,7 +240,7 @@
   .notification h2 {
     font-size: 32px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .notification p {
@@ -240,14 +250,14 @@
   }
 
   .notification input[type="text"] {
-    margin-top: 12px;
+    margin-top: 14px;
     background: rgba(255,255,255,0.15);
     border: 1px solid rgba(255,255,255,0.4);
     border-radius: 8px;
     color: #fff;
     padding: 10px 16px;
     font-size: 15px;
-    width: 280px;
+    width: 300px;
     text-align: center;
   }
 
@@ -271,9 +281,33 @@
     color: #fff;
   }
 
+  .faq-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
+    max-width: 340px;
+  }
+
+  .faq-chip {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .faq-chip:hover { background: rgba(255,255,255,0.3); }
+  .faq-chip.work { border-color: rgba(233,69,96,0.6); }
+  .faq-chip.life { border-color: rgba(39,174,96,0.6); }
+
   .activity-section {
     margin-top: 28px;
-    width: 300px;
+    width: 320px;
     display: none;
   }
 
@@ -306,38 +340,35 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    max-height: 160px;
+    max-height: 200px;
     overflow-y: auto;
   }
 
   .activity-item {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     background: #16213e;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 12px;
+    gap: 6px;
   }
 
-  .activity-item .activity-desc { color: #ccc; flex: 1; }
-  .activity-item .activity-time { color: #555; margin-left: 10px; white-space: nowrap; }
-  .activity-item .activity-del {
-    background: none;
-    border: none;
-    color: #444;
-    cursor: pointer;
-    font-size: 11px;
-    margin-left: 6px;
-    padding: 0;
+  .activity-item .activity-type {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
   }
 
-  .empty-log {
-    font-size: 12px;
-    color: #333;
-    text-align: center;
-    padding: 12px;
-  }
+  .activity-item .activity-type.work { background: rgba(233,69,96,0.2); color: #e94560; }
+  .activity-item .activity-type.life { background: rgba(39,174,96,0.2); color: #27ae60; }
+
+  .activity-item .activity-desc { color: #ccc; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .activity-item .activity-time { color: #555; flex-shrink: 0; }
+  .activity-item .activity-del { background: none; border: none; color: #444; cursor: pointer; font-size: 11px; padding: 0; flex-shrink: 0; }
+
+  .empty-log { font-size: 12px; color: #333; text-align: center; padding: 12px; }
 </style>
 </head>
 <body>
@@ -351,10 +382,7 @@
 <div class="timer-ring" style="--ring-color: #e94560;">
   <svg viewBox="0 0 280 280">
     <circle class="bg-ring" cx="140" cy="140" r="130"/>
-    <circle class="progress-ring" cx="140" cy="140" r="130"
-      stroke-dasharray="816.81"
-      stroke-dashoffset="0"
-      id="progressCircle"/>
+    <circle class="progress-ring" cx="140" cy="140" r="130" stroke-dasharray="816.81" stroke-dashoffset="0" id="progressCircle"/>
   </svg>
   <div class="timer-display">
     <div class="time-text" id="timeDisplay">25:00</div>
@@ -365,6 +393,7 @@
 <div class="controls">
   <button class="btn btn-primary" id="startBtn">开始</button>
   <button class="btn btn-secondary" id="resetBtn">重置</button>
+  <button class="btn stop-btn" id="stopBtn" style="display:none">停止</button>
 </div>
 
 <div class="stats">
@@ -385,316 +414,275 @@
 <button class="settings-toggle" id="settingsToggle">设置</button>
 
 <div class="settings-panel" id="settingsPanel">
-  <div class="setting-row">
-    <span>专注时长（分钟）</span>
-    <input type="number" id="workDuration" value="25" min="1" max="120">
-  </div>
-  <div class="setting-row">
-    <span>短休时长（分钟）</span>
-    <input type="number" id="shortDuration" value="5" min="1" max="30">
-  </div>
+  <div class="setting-row"><span>专注时长（分钟）</span><input type="number" id="workDuration" value="25" min="1" max="120"></div>
+  <div class="setting-row"><span>短休时长（分钟）</span><input type="number" id="shortDuration" value="5" min="1" max="30"></div>
 </div>
 
 <div class="keyboard-hints">
-  <kbd>Space</kbd> 开始/暂停 &nbsp;·&nbsp; <kbd>R</kbd> 重置 &nbsp;·&nbsp; <kbd>1</kbd> 专注 &nbsp;·&nbsp; <kbd>2</kbd> 短休 &nbsp;·&nbsp; <kbd>3</kbd> 自由
+  <kbd>Space</kbd> 开始/暂停 &nbsp;·&nbsp; <kbd>R</kbd> 重置/停止 &nbsp;·&nbsp; <kbd>1</kbd> 专注 &nbsp;·&nbsp; <kbd>2</kbd> 短休 &nbsp;·&nbsp; <kbd>3</kbd> 自由
 </div>
 
 <div class="notification" id="notification">
   <h2 id="notifTitle">休息一下！</h2>
   <p id="notifBody">专注时间结束，适当休息</p>
   <input type="text" id="activityInput" placeholder="刚才在做什么？（选填）" style="display:none">
-  <div class="btn-group" id="notifBtns">
-    <button class="btn" id="notifBtn">继续</button>
-  </div>
+  <div class="faq-chips" id="faqChips" style="display:none"></div>
+  <div class="btn-group" id="notifBtns"><button class="btn" id="notifBtn">继续</button></div>
 </div>
 
 <div class="activity-section" id="activitySection">
-  <div class="activity-header">
-    <span>今日记录</span>
-    <button id="clearLog">清空</button>
-  </div>
+  <div class="activity-header"><span>今日记录</span><button id="clearLog">清空</button></div>
   <div class="activity-list" id="activityList"></div>
 </div>
 
 <script>
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  function playTone(freq, duration, type = 'sine') {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type; osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + duration);
-  }
-  function playBell() {
-    playTone(830, 0.15, 'sine');
-    setTimeout(() => playTone(1100, 0.4, 'sine'), 160);
-  }
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playTone(freq, duration, type = 'sine') {
+  const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+function playBell() { playTone(830, 0.15, 'sine'); setTimeout(() => playTone(1100, 0.4, 'sine'), 160); }
 
-  const MODE_COLORS = { work: '#e94560', short: '#27ae60', free: '#27ae60' };
-  const MODE_LABELS = { work: '专注时间', short: '短休息', free: '自由计时' };
-  const CIRCUMFERENCE = 2 * Math.PI * 130;
-
-  let settings = { work: 25, short: 5 };
-  let mode = 'work';
-  let totalSeconds = 25 * 60;
-  let remaining = totalSeconds;
-  let elapsed = 0;
-  let running = false;
-  let interval = null;
-  let completedPomodoros = 0;
-  let totalBreakMinutes = 0;
-  let todayDate = new Date().toDateString();
-
-  const saved = localStorage.getItem('pomodoro_settings');
-  if (saved) settings = JSON.parse(saved);
-
-  const savedDate = localStorage.getItem('pomodoro_date');
-  if (savedDate !== todayDate) {
-    completedPomodoros = 0;
-    totalBreakMinutes = 0;
-    localStorage.setItem('pomodoro_date', todayDate);
-    localStorage.setItem('pomodoro_count', '0');
-    localStorage.setItem('pomodoro_break', '0');
-    localStorage.setItem('pomodoro_log', JSON.stringify([]));
-  } else {
-    completedPomodoros = parseInt(localStorage.getItem('pomodoro_count') || '0');
-    totalBreakMinutes = parseInt(localStorage.getItem('pomodoro_break') || '0');
-  }
-
-  const $ = id => document.getElementById(id);
-  const progressCircle = $('progressCircle');
-  const timeDisplay = $('timeDisplay');
-  const modeLabel = $('modeLabel');
-  const startBtn = $('startBtn');
-  const resetBtn = $('resetBtn');
-  const notif = $('notification');
-  const notifTitle = $('notifTitle');
-  const notifBody = $('notifBody');
-  const activityInput = $('activityInput');
-  const notifBtns = $('notifBtns');
-  const activitySection = $('activitySection');
-  const activityList = $('activityList');
-  const timerRing = document.querySelector('.timer-ring');
-
-  progressCircle.style.strokeDasharray = CIRCUMFERENCE;
-
-  function fmt(secs) {
-    if (secs >= 3600) {
-      const h = Math.floor(secs / 3600);
-      const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
-      const s = (secs % 60).toString().padStart(2, '0');
-      return h + ':' + m + ':' + s;
-    }
-    return Math.floor(secs / 60).toString().padStart(2, '0') + ':' + (secs % 60).toString().padStart(2, '0');
-  }
-
-  function applyTheme(m) {
-    const color = MODE_COLORS[m];
-    document.documentElement.style.setProperty('--ring-color', color);
-    timerRing.style.setProperty('--ring-color', color);
-    startBtn.style.setProperty('--btn-primary-bg', color);
-  }
-
-  function updateDisplay() {
-    if (mode === 'free') {
-      timeDisplay.textContent = fmt(elapsed);
-    } else {
-      timeDisplay.textContent = fmt(remaining);
-      const progress = 1 - remaining / totalSeconds;
-      progressCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
-    }
-    modeLabel.textContent = MODE_LABELS[mode];
-  }
-
-  function switchMode(newMode) {
-    clearInterval(interval);
-    mode = newMode;
-    running = false;
-    elapsed = 0;
-    if (mode === 'free') {
-      totalSeconds = 0;
-      remaining = 0;
-      startBtn.textContent = '开始';
-      activitySection.classList.add('open');
-      renderLog();
-    } else {
-      totalSeconds = settings[mode] * 60;
-      remaining = totalSeconds;
-      startBtn.textContent = '开始';
-    }
-    applyTheme(mode);
-    document.querySelectorAll('.mode-tab').forEach(t => {
-      t.classList.toggle('active', t.dataset.mode === mode);
-    });
-    updateDisplay();
-  }
-
-  function tick() {
-    if (mode === 'free') {
-      elapsed++;
-      updateDisplay();
-    } else {
-      if (remaining > 0) {
-        remaining--;
-        updateDisplay();
-      } else {
-        clearInterval(interval);
-        running = false;
-        playBell();
-        if (mode === 'work') {
-          completedPomodoros++;
-          document.getElementById('sessionCount').textContent = completedPomodoros;
-          document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
-          localStorage.setItem('pomodoro_count', completedPomodoros.toString());
-          showNotif('短休息！', '完成了 ' + completedPomodoros + ' 个番茄', false);
-        } else {
-          const breakMins = settings.short;
-          totalBreakMinutes += breakMins;
-          localStorage.setItem('pomodoro_break', totalBreakMinutes.toString());
-          document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
-          showNotif('专注时间！', '休息结束，回到专注状态', true);
-        }
-        startBtn.textContent = '开始';
-      }
-    }
-  }
-
-  function showNotif(title, body, isBreakEnd) {
-    notifTitle.textContent = title;
-    notifBody.textContent = body;
-    activityInput.style.display = 'none';
-    notifBtns.innerHTML = '<button class="btn" id="notifBtn">继续</button>';
-    notif.className = 'notification show' + (isBreakEnd ? '' : ' green');
-    document.getElementById('notifBtn').addEventListener('click', () => {
-      notif.classList.remove('show');
-      switchMode(mode === 'work' ? 'short' : 'work');
-    });
-  }
-
-  function showFreeNotif() {
-    notifTitle.textContent = '记录一下';
-    notifBody.textContent = '自由计时结束，刚才在做什么？';
-    activityInput.style.display = 'block';
-    activityInput.value = '';
-    notifBtns.innerHTML = '<button class="btn" id="notifSave">保存</button><button class="btn skip" id="notifSkip">跳过</button>';
-    notif.className = 'notification show';
-    document.getElementById('notifSave').addEventListener('click', saveFreeActivity);
-    document.getElementById('notifSkip').addEventListener('click', () => { notif.classList.remove('show'); elapsed = 0; updateDisplay(); });
-  }
-
-  function saveFreeActivity() {
-    const desc = activityInput.value.trim();
-    const timeStr = new Date().toTimeString().slice(0, 5);
-    const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
-    log.unshift({ desc: desc || '(无描述)', time: timeStr, dur: elapsed });
-    localStorage.setItem('pomodoro_log', JSON.stringify(log));
-    notif.classList.remove('show');
-    elapsed = 0;
-    updateDisplay();
-    renderLog();
-  }
-
-  function renderLog() {
-    const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
-    if (log.length === 0) {
-      activityList.innerHTML = '<div class="empty-log">暂无记录</div>';
-      return;
-    }
-    activityList.innerHTML = log.map((item, i) =>
-      '<div class="activity-item">' +
-        '<span class="activity-desc">' + escapeHtml(item.desc) + '</span>' +
-        '<span class="activity-time">' + item.time + ' · ' + fmt(item.dur) + '</span>' +
-        '<button class="activity-del" data-i="' + i + '">×</button>' +
-      '</div>'
-    ).join('');
-    activityList.querySelectorAll('.activity-del').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const i = parseInt(btn.dataset.i);
-        log.splice(i, 1);
-        localStorage.setItem('pomodoro_log', JSON.stringify(log));
-        renderLog();
-      });
-    });
-  }
-
-  function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  document.getElementById('clearLog').addEventListener('click', () => {
-    localStorage.setItem('pomodoro_log', JSON.stringify([]));
-    renderLog();
+const WORK_KW = ['工作','任务','项目','报告','邮件','客户','会议','分析','数据','文档','方案','审核','跟进','沟通','bd','bluetti','亚马逊','广告','选品','销售','运营','独立站','社媒','内容','文案','投放','google','meta','facebook','instagram','tiktok','youtube','写','整理','复盘','思考','学习','研究','视频会议','ppt','excel','表格','slides','deck','campaign','seo','sem','review','listing','sku','asin','cpa','roi','转化'];
+const LIFE_KW = ['吃饭','午休','散步','运动','健身','跑步','阅读','视频','游戏','娱乐','睡觉','休息','冥想','咖啡','茶','购物','家务','洗澡','通勤','交通','看剧','综艺','电影','音乐','抖音','小红书','微信','朋友圈','微博','b站','bilibili','外卖','做饭','清洁','遛狗','猫','孩子','小孩','家人','朋友','聊天','电话','短信','刷'];
+function classify(text) {
+  const t = text.toLowerCase();
+  let w = 0, l = 0;
+  WORK_KW.forEach(k => { if (t.includes(k)) w++; });
+  LIFE_KW.forEach(k => { if (t.includes(k)) l++; });
+  return w > l ? 'work' : l > w ? 'life' : 'work';
+}
+function getTopSuggestions(existingLog, limit = 8) {
+  const freq = {};
+  existingLog.forEach(item => {
+    const d = (item.desc || '').trim();
+    if (d && d !== '(无描述)') freq[d] = (freq[d] || 0) + item.dur;
   });
+  return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, limit).map(([desc]) => ({ desc, cat: classify(desc) }));
+}
 
-  startBtn.addEventListener('click', () => {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    if (running) {
-      clearInterval(interval);
-      running = false;
-      startBtn.textContent = '继续';
-    } else {
-      running = true;
-      interval = setInterval(tick, 1000);
-      startBtn.textContent = '暂停';
-    }
-  });
+const MODE_COLORS = { work: '#e94560', short: '#27ae60', free: '#27ae60' };
+const MODE_LABELS = { work: '专注时间', short: '短休息', free: '自由计时' };
+const CIRCUMFERENCE = 2 * Math.PI * 130;
 
-  resetBtn.addEventListener('click', () => {
-    clearInterval(interval);
-    if (mode === 'free') elapsed = 0;
-    else remaining = totalSeconds;
-    running = false;
-    startBtn.textContent = '开始';
-    updateDisplay();
-  });
+let settings = { work: 25, short: 5 };
+let mode = 'work', totalSeconds = 25 * 60, remaining = totalSeconds, elapsed = 0;
+let running = false, interval = null;
+let completedPomodoros = 0, totalBreakMinutes = 0;
+const todayDate = new Date().toDateString();
 
-  document.querySelectorAll('.mode-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchMode(tab.dataset.mode));
-  });
+const saved = localStorage.getItem('pomodoro_settings');
+if (saved) settings = JSON.parse(saved);
 
-  $('settingsToggle').addEventListener('click', () => {
-    $('settingsPanel').classList.toggle('open');
-  });
+const savedDate = localStorage.getItem('pomodoro_date');
+if (savedDate !== todayDate) {
+  completedPomodoros = 0; totalBreakMinutes = 0;
+  localStorage.setItem('pomodoro_date', todayDate);
+  localStorage.setItem('pomodoro_count', '0');
+  localStorage.setItem('pomodoro_break', '0');
+  localStorage.setItem('pomodoro_log', JSON.stringify([]));
+} else {
+  completedPomodoros = parseInt(localStorage.getItem('pomodoro_count') || '0');
+  totalBreakMinutes = parseInt(localStorage.getItem('pomodoro_break') || '0');
+}
 
-  $('workDuration').addEventListener('change', e => {
-    settings.work = parseInt(e.target.value) || 1;
-    localStorage.setItem('pomodoro_settings', JSON.stringify(settings));
-    if (mode === 'work' && !running) { totalSeconds = settings.work * 60; remaining = totalSeconds; updateDisplay(); }
-  });
+const $ = id => document.getElementById(id);
+const progressCircle = $('progressCircle'), timeDisplay = $('timeDisplay'), modeLabel = $('modeLabel');
+const startBtn = $('startBtn'), resetBtn = $('resetBtn'), stopBtn = $('stopBtn');
+const notif = $('notification'), notifTitle = $('notifTitle'), notifBody = $('notifBody');
+const activityInput = $('activityInput'), notifBtns = $('notifBtns'), faqChips = $('faqChips');
+const activitySection = $('activitySection'), activityList = $('activityList');
+const timerRing = document.querySelector('.timer-ring');
 
-  $('shortDuration').addEventListener('change', e => {
-    settings.short = parseInt(e.target.value) || 1;
-    localStorage.setItem('pomodoro_settings', JSON.stringify(settings));
-    if (mode === 'short' && !running) { totalSeconds = settings.short * 60; remaining = totalSeconds; updateDisplay(); }
-  });
+progressCircle.style.strokeDasharray = CIRCUMFERENCE;
 
-  document.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT') return;
-    if (e.code === 'Space') { e.preventDefault(); startBtn.click(); }
-    else if (e.code === 'KeyR') { resetBtn.click(); }
-    else if (e.code === 'Digit1' || e.code === 'Numpad1') { switchMode('work'); }
-    else if (e.code === 'Digit2' || e.code === 'Numpad2') { switchMode('short'); }
-    else if (e.code === 'Digit3' || e.code === 'Numpad3') { switchMode('free'); }
-  });
+function fmt(secs) {
+  if (secs >= 3600) { const h = Math.floor(secs / 3600); const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0'); const s = (secs % 60).toString().padStart(2, '0'); return h + ':' + m + ':' + s; }
+  return Math.floor(secs / 60).toString().padStart(2, '0') + ':' + (secs % 60).toString().padStart(2, '0');
+}
 
-  // Auto-stop free timer after 4 hours as a safety limit
-  // Stop free timer when page visibility changes (tab hidden)
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && mode === 'free' && running) {
-      clearInterval(interval);
-      running = false;
-      startBtn.textContent = '继续';
-      showFreeNotif();
-    }
-  });
+function applyTheme(m) {
+  const color = MODE_COLORS[m];
+  document.documentElement.style.setProperty('--ring-color', color);
+  timerRing.style.setProperty('--ring-color', color);
+  startBtn.style.setProperty('--btn-primary-bg', color);
+  stopBtn.style.display = m === 'free' ? 'inline-block' : 'none';
+  resetBtn.style.display = m === 'free' ? 'none' : 'inline-block';
+}
 
-  applyTheme('work');
+function updateDisplay() {
+  if (mode === 'free') { timeDisplay.textContent = fmt(elapsed); progressCircle.style.strokeDashoffset = 0; }
+  else { timeDisplay.textContent = fmt(remaining); progressCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - (1 - remaining / totalSeconds)); }
+  modeLabel.textContent = MODE_LABELS[mode];
+}
+
+function switchMode(newMode) {
+  clearInterval(interval); mode = newMode; running = false; elapsed = 0;
+  if (mode === 'free') { totalSeconds = 0; remaining = 0; startBtn.textContent = '开始'; activitySection.classList.add('open'); renderLog(); }
+  else { totalSeconds = settings[mode] * 60; remaining = totalSeconds; startBtn.textContent = '开始'; }
+  applyTheme(mode);
+  document.querySelectorAll('.mode-tab').forEach(t => { t.classList.toggle('active', t.dataset.mode === mode); });
   updateDisplay();
-  document.getElementById('sessionCount').textContent = completedPomodoros;
-  document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
-  document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
+}
+
+function tick() {
+  if (mode === 'free') { elapsed++; updateDisplay(); }
+  else {
+    if (remaining > 0) { remaining--; updateDisplay(); }
+    else {
+      clearInterval(interval); running = false; playBell();
+      if (mode === 'work') {
+        completedPomodoros++;
+        document.getElementById('sessionCount').textContent = completedPomodoros;
+        document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
+        localStorage.setItem('pomodoro_count', completedPomodoros.toString());
+        showWorkDoneNotif();
+      } else {
+        totalBreakMinutes += settings.short;
+        localStorage.setItem('pomodoro_break', totalBreakMinutes.toString());
+        document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
+        showNotif('专注时间！', '休息结束，回到专注状态', true);
+      }
+      startBtn.textContent = '开始';
+    }
+  }
+}
+
+function buildFaqChips() {
+  const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
+  const suggestions = getTopSuggestions(log, 8);
+  if (suggestions.length > 0) {
+    faqChips.style.display = 'flex';
+    faqChips.innerHTML = suggestions.map(s => '<button class="faq-chip ' + s.cat + '" data-desc="' + escapeHtml(s.desc) + '">' + escapeHtml(s.desc) + '</button>').join('');
+    faqChips.querySelectorAll('.faq-chip').forEach(chip => { chip.addEventListener('click', () => { activityInput.value = chip.dataset.desc; }); });
+  } else { faqChips.style.display = 'none'; }
+}
+
+function showWorkDoneNotif() {
+  notifTitle.textContent = '专注完成！'; notifBody.textContent = '刚才完成了什么？';
+  activityInput.style.display = 'block'; activityInput.value = ''; faqChips.style.display = 'none';
+  buildFaqChips();
+  notifBtns.innerHTML = '<button class="btn" id="notifSave">保存</button><button class="btn skip" id="notifSkip">跳过</button>';
+  notif.className = 'notification show';
+  document.getElementById('notifSave').addEventListener('click', saveWorkActivity);
+  document.getElementById('notifSkip').addEventListener('click', skipWorkActivity);
+}
+
+function saveWorkActivity() {
+  const desc = activityInput.value.trim();
+  const endTime = new Date().toTimeString().slice(0, 5);
+  const cat = classify(desc) || 'work';
+  const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
+  log.unshift({ desc: desc || '(无描述)', time: endTime, dur: settings.work * 60, cat, type: 'work' });
+  localStorage.setItem('pomodoro_log', JSON.stringify(log));
+  notif.classList.remove('show'); faqChips.style.display = 'none'; renderLog();
+  showNotif('短休息！', '完成了 ' + completedPomodoros + ' 个番茄', false);
+}
+
+function skipWorkActivity() {
+  notif.classList.remove('show'); faqChips.style.display = 'none';
+  showNotif('短休息！', '完成了 ' + completedPomodoros + ' 个番茄', false);
+}
+
+function showFreeNotif() {
+  if (elapsed < 5) { elapsed = 0; updateDisplay(); startBtn.textContent = '开始'; return; }
+  notifTitle.textContent = '记录一下'; notifBody.textContent = '刚才在做什么？';
+  activityInput.style.display = 'block'; activityInput.value = ''; faqChips.style.display = 'none';
+  buildFaqChips();
+  notifBtns.innerHTML = '<button class="btn" id="notifSave">保存</button><button class="btn skip" id="notifSkip">跳过</button>';
+  notif.className = 'notification show';
+  document.getElementById('notifSave').addEventListener('click', saveFreeActivity);
+  document.getElementById('notifSkip').addEventListener('click', skipFreeActivity);
+}
+
+function saveFreeActivity() {
+  const desc = activityInput.value.trim();
+  const endTime = new Date().toTimeString().slice(0, 5);
+  const cat = classify(desc) || 'work';
+  const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
+  log.unshift({ desc: desc || '(无描述)', time: endTime, dur: elapsed, cat, type: 'free' });
+  localStorage.setItem('pomodoro_log', JSON.stringify(log));
+  notif.classList.remove('show'); faqChips.style.display = 'none';
+  elapsed = 0; updateDisplay(); renderLog(); startBtn.textContent = '开始';
+}
+
+function skipFreeActivity() {
+  notif.classList.remove('show'); faqChips.style.display = 'none';
+  elapsed = 0; updateDisplay(); startBtn.textContent = '开始';
+}
+
+function stopFreeTimer() { if (mode !== 'free') return; clearInterval(interval); running = false; showFreeNotif(); }
+
+function showNotif(title, body, isBreakEnd) {
+  notifTitle.textContent = title; notifBody.textContent = body;
+  activityInput.style.display = 'none'; faqChips.style.display = 'none';
+  notifBtns.innerHTML = '<button class="btn" id="notifBtn">继续</button>';
+  notif.className = 'notification show' + (isBreakEnd ? '' : ' green');
+  document.getElementById('notifBtn').addEventListener('click', () => { notif.classList.remove('show'); switchMode(mode === 'work' ? 'short' : 'work'); });
+}
+
+function renderLog() {
+  const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
+  if (log.length === 0) { activityList.innerHTML = '<div class="empty-log">暂无记录</div>'; return; }
+  activityList.innerHTML = log.map((item, i) => {
+    const typeLabel = item.type === 'work' ? '专注' : '自由';
+    const tagClass = item.cat || 'work';
+    const tagLabel = item.cat === 'life' ? '生活' : '工作';
+    return '<div class="activity-item">' +
+      '<span class="activity-type ' + tagClass + '">' + typeLabel + '</span>' +
+      '<span class="activity-desc">' + escapeHtml(item.desc) + '</span>' +
+      '<span class="activity-time">' + item.time + ' · ' + fmt(item.dur) + '</span>' +
+      '<button class="activity-del" data-i="' + i + '">×</button></div>';
+  }).join('');
+  activityList.querySelectorAll('.activity-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.i);
+      const log2 = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
+      log2.splice(i, 1); localStorage.setItem('pomodoro_log', JSON.stringify(log2)); renderLog();
+    });
+  });
+}
+
+function escapeHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.getElementById('clearLog').addEventListener('click', () => { localStorage.setItem('pomodoro_log', JSON.stringify([])); renderLog(); });
+
+startBtn.addEventListener('click', () => {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (running) { clearInterval(interval); running = false; startBtn.textContent = '继续'; }
+  else { running = true; interval = setInterval(tick, 1000); startBtn.textContent = '暂停'; }
+});
+
+resetBtn.addEventListener('click', () => { clearInterval(interval); remaining = totalSeconds; running = false; startBtn.textContent = '开始'; updateDisplay(); });
+stopBtn.addEventListener('click', stopFreeTimer);
+
+document.querySelectorAll('.mode-tab').forEach(tab => { tab.addEventListener('click', () => switchMode(tab.dataset.mode)); });
+
+$('settingsToggle').addEventListener('click', () => { $('settingsPanel').classList.toggle('open'); });
+
+$('workDuration').addEventListener('change', e => { settings.work = parseInt(e.target.value) || 1; localStorage.setItem('pomodoro_settings', JSON.stringify(settings)); if (mode === 'work' && !running) { totalSeconds = settings.work * 60; remaining = totalSeconds; updateDisplay(); } });
+
+$('shortDuration').addEventListener('change', e => { settings.short = parseInt(e.target.value) || 1; localStorage.setItem('pomodoro_settings', JSON.stringify(settings)); if (mode === 'short' && !running) { totalSeconds = settings.short * 60; remaining = totalSeconds; updateDisplay(); } });
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); startBtn.click(); }
+  else if (e.code === 'KeyR') { mode === 'free' ? stopFreeTimer() : resetBtn.click(); }
+  else if (e.code === 'Digit1' || e.code === 'Numpad1') { switchMode('work'); }
+  else if (e.code === 'Digit2' || e.code === 'Numpad2') { switchMode('short'); }
+  else if (e.code === 'Digit3' || e.code === 'Numpad3') { switchMode('free'); }
+});
+
+document.addEventListener('visibilitychange', () => { if (document.hidden && mode === 'free' && running && elapsed > 0) { stopFreeTimer(); } });
+
+applyTheme('work'); updateDisplay();
+document.getElementById('sessionCount').textContent = completedPomodoros;
+document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
+document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
 </script>
 </body>
 </html>
