@@ -280,7 +280,11 @@
   </div>
   <div class="stat">
     <div class="stat-value" id="totalMinutes">0</div>
-    <div class="stat-label">累计分钟</div>
+    <div class="stat-label">专注分钟</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value" id="totalBreakMinutes">0</div>
+    <div class="stat-label">休息分钟</div>
   </div>
 </div>
 
@@ -342,21 +346,27 @@
   let running = false;
   let interval = null;
   let completedPomodoros = 0;
+  let totalBreakMinutes = 0;
   let todayDate = new Date().toDateString();
 
   const saved = localStorage.getItem('pomodoro_settings');
   if (saved) settings = JSON.parse(saved);
 
-  const savedCount = localStorage.getItem('pomodoro_date');
-  if (savedCount !== todayDate) {
+  const savedDate = localStorage.getItem('pomodoro_date');
+  if (savedDate !== todayDate) {
     completedPomodoros = 0;
+    totalBreakMinutes = 0;
     localStorage.setItem('pomodoro_date', todayDate);
+    localStorage.setItem('pomodoro_count', '0');
+    localStorage.setItem('pomodoro_break', '0');
   } else {
     completedPomodoros = parseInt(localStorage.getItem('pomodoro_count') || '0');
+    totalBreakMinutes = parseInt(localStorage.getItem('pomodoro_break') || '0');
   }
 
   document.getElementById('sessionCount').textContent = completedPomodoros;
   document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
+  document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
 
   const progressCircle = document.getElementById('progressCircle');
   const timeDisplay = document.getElementById('timeDisplay');
@@ -406,14 +416,17 @@
         completedPomodoros++;
         document.getElementById('sessionCount').textContent = completedPomodoros;
         document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
-        localStorage.setItem('pomodoro_count', completedPomodoros);
-        localStorage.setItem('pomodoro_date', todayDate);
+        localStorage.setItem('pomodoro_count', completedPomodoros.toString());
         if (completedPomodoros % settings.longInterval === 0) {
           showNotification('长休息！', '完成了 ' + completedPomodoros + ' 个番茄，继续休息一下吧');
         } else {
           showNotification('短休息！', '完成了 ' + completedPomodoros + ' 个番茄，适当休息一下');
         }
       } else {
+        const breakMins = settings[mode];
+        totalBreakMinutes += breakMins;
+        localStorage.setItem('pomodoro_break', totalBreakMinutes.toString());
+        document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
         showNotification('专注时间！', '休息结束，回到专注状态吧');
       }
       startBtn.textContent = '开始';
