@@ -40,7 +40,7 @@
   }
 
   .mode-tab.active {
-    background: #e94560;
+    background: var(--tab-active-bg, #e94560);
     color: #fff;
     font-weight: 600;
   }
@@ -66,9 +66,9 @@
   .bg-ring { stroke: #2a2a4a; }
 
   .progress-ring {
-    stroke: #e94560;
+    stroke: var(--ring-color, #e94560);
     stroke-linecap: round;
-    transition: stroke-dashoffset 0.5s ease;
+    transition: stroke 0.3s ease;
   }
 
   .timer-display {
@@ -113,11 +113,11 @@
   }
 
   .btn-primary {
-    background: #e94560;
+    background: var(--btn-primary-bg, #e94560);
     color: #fff;
   }
 
-  .btn-primary:hover { background: #ff6b81; }
+  .btn-primary:hover { opacity: 0.9; }
 
   .btn-secondary {
     background: #2a2a4a;
@@ -130,7 +130,7 @@
 
   .stats {
     display: flex;
-    gap: 24px;
+    gap: 20px;
   }
 
   .stat {
@@ -152,7 +152,7 @@
   }
 
   .settings-toggle {
-    margin-top: 32px;
+    margin-top: 28px;
     background: none;
     border: none;
     color: #444;
@@ -195,11 +195,11 @@
 
   .setting-row input:focus {
     outline: none;
-    border-color: #e94560;
+    border-color: var(--ring-color, #e94560);
   }
 
   .keyboard-hints {
-    margin-top: 24px;
+    margin-top: 20px;
     font-size: 11px;
     color: #333;
     text-align: center;
@@ -225,6 +225,7 @@
   }
 
   .notification.show { display: flex; }
+  .notification.green { background: rgba(39, 174, 96, 0.95); }
 
   .notification h2 {
     font-size: 32px;
@@ -234,27 +235,120 @@
 
   .notification p {
     font-size: 16px;
-    opacity: 0.8;
+    opacity: 0.85;
+    margin-bottom: 4px;
+  }
+
+  .notification input[type="text"] {
+    margin-top: 12px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 8px;
+    color: #fff;
+    padding: 10px 16px;
+    font-size: 15px;
+    width: 280px;
+    text-align: center;
+  }
+
+  .notification input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
+
+  .notification .btn-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
   }
 
   .notification .btn {
-    margin-top: 28px;
     background: #fff;
-    color: #e94560;
+    color: #333;
+    padding: 10px 24px;
+    font-size: 14px;
   }
 
-  .notification .btn:hover { background: #f5f5f5; }
+  .notification .btn.skip {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+
+  .activity-section {
+    margin-top: 28px;
+    width: 300px;
+    display: none;
+  }
+
+  .activity-section.open { display: block; }
+
+  .activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .activity-header span {
+    font-size: 12px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .activity-header button {
+    background: none;
+    border: none;
+    color: #444;
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+
+  .activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: #16213e;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .activity-item .activity-desc { color: #ccc; flex: 1; }
+  .activity-item .activity-time { color: #555; margin-left: 10px; white-space: nowrap; }
+  .activity-item .activity-del {
+    background: none;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    font-size: 11px;
+    margin-left: 6px;
+    padding: 0;
+  }
+
+  .empty-log {
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+    padding: 12px;
+  }
 </style>
 </head>
 <body>
 
 <div class="mode-tabs">
-  <button class="mode-tab active" data-mode="work">专注</button>
-  <button class="mode-tab" data-mode="short">短休</button>
-  <button class="mode-tab" data-mode="long">长休</button>
+  <button class="mode-tab active" data-mode="work" style="--tab-active-bg: #e94560;">专注</button>
+  <button class="mode-tab" data-mode="short" style="--tab-active-bg: #27ae60;">短休</button>
+  <button class="mode-tab" data-mode="free" style="--tab-active-bg: #27ae60;">自由</button>
 </div>
 
-<div class="timer-ring">
+<div class="timer-ring" style="--ring-color: #e94560;">
   <svg viewBox="0 0 280 280">
     <circle class="bg-ring" cx="140" cy="140" r="130"/>
     <circle class="progress-ring" cx="140" cy="140" r="130"
@@ -276,15 +370,15 @@
 <div class="stats">
   <div class="stat">
     <div class="stat-value" id="sessionCount">0</div>
-    <div class="stat-label">今日完成</div>
+    <div class="stat-label">番茄</div>
   </div>
   <div class="stat">
     <div class="stat-value" id="totalMinutes">0</div>
-    <div class="stat-label">专注分钟</div>
+    <div class="stat-label">专注分</div>
   </div>
   <div class="stat">
     <div class="stat-value" id="totalBreakMinutes">0</div>
-    <div class="stat-label">休息分钟</div>
+    <div class="stat-label">休息分</div>
   </div>
 </div>
 
@@ -293,30 +387,33 @@
 <div class="settings-panel" id="settingsPanel">
   <div class="setting-row">
     <span>专注时长（分钟）</span>
-    <input type="number" id="workDuration" value="25" min="1" max="60">
+    <input type="number" id="workDuration" value="25" min="1" max="120">
   </div>
   <div class="setting-row">
     <span>短休时长（分钟）</span>
     <input type="number" id="shortDuration" value="5" min="1" max="30">
   </div>
-  <div class="setting-row">
-    <span>长休时长（分钟）</span>
-    <input type="number" id="longDuration" value="15" min="1" max="60">
-  </div>
-  <div class="setting-row">
-    <span>长休间隔（次）</span>
-    <input type="number" id="longInterval" value="4" min="1" max="10">
-  </div>
 </div>
 
 <div class="keyboard-hints">
-  <kbd>Space</kbd> 开始/暂停 &nbsp;·&nbsp; <kbd>R</kbd> 重置 &nbsp;·&nbsp; <kbd>1</kbd> 专注 &nbsp;·&nbsp; <kbd>2</kbd> 短休 &nbsp;·&nbsp; <kbd>3</kbd> 长休
+  <kbd>Space</kbd> 开始/暂停 &nbsp;·&nbsp; <kbd>R</kbd> 重置 &nbsp;·&nbsp; <kbd>1</kbd> 专注 &nbsp;·&nbsp; <kbd>2</kbd> 短休 &nbsp;·&nbsp; <kbd>3</kbd> 自由
 </div>
 
 <div class="notification" id="notification">
   <h2 id="notifTitle">休息一下！</h2>
   <p id="notifBody">专注时间结束，适当休息</p>
-  <button class="btn" id="notifBtn">继续</button>
+  <input type="text" id="activityInput" placeholder="刚才在做什么？（选填）" style="display:none">
+  <div class="btn-group" id="notifBtns">
+    <button class="btn" id="notifBtn">继续</button>
+  </div>
+</div>
+
+<div class="activity-section" id="activitySection">
+  <div class="activity-header">
+    <span>今日记录</span>
+    <button id="clearLog">清空</button>
+  </div>
+  <div class="activity-list" id="activityList"></div>
 </div>
 
 <script>
@@ -324,25 +421,26 @@
   function playTone(freq, duration, type = 'sine') {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
+    osc.type = type; osc.frequency.value = freq;
     gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
   }
-
   function playBell() {
     playTone(830, 0.15, 'sine');
     setTimeout(() => playTone(1100, 0.4, 'sine'), 160);
   }
 
-  let settings = { work: 25, short: 5, long: 15, longInterval: 4 };
+  const MODE_COLORS = { work: '#e94560', short: '#27ae60', free: '#27ae60' };
+  const MODE_LABELS = { work: '专注时间', short: '短休息', free: '自由计时' };
+  const CIRCUMFERENCE = 2 * Math.PI * 130;
+
+  let settings = { work: 25, short: 5 };
   let mode = 'work';
-  let totalSeconds = settings.work * 60;
+  let totalSeconds = 25 * 60;
   let remaining = totalSeconds;
+  let elapsed = 0;
   let running = false;
   let interval = null;
   let completedPomodoros = 0;
@@ -359,45 +457,74 @@
     localStorage.setItem('pomodoro_date', todayDate);
     localStorage.setItem('pomodoro_count', '0');
     localStorage.setItem('pomodoro_break', '0');
+    localStorage.setItem('pomodoro_log', JSON.stringify([]));
   } else {
     completedPomodoros = parseInt(localStorage.getItem('pomodoro_count') || '0');
     totalBreakMinutes = parseInt(localStorage.getItem('pomodoro_break') || '0');
   }
 
-  document.getElementById('sessionCount').textContent = completedPomodoros;
-  document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
-  document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
+  const $ = id => document.getElementById(id);
+  const progressCircle = $('progressCircle');
+  const timeDisplay = $('timeDisplay');
+  const modeLabel = $('modeLabel');
+  const startBtn = $('startBtn');
+  const resetBtn = $('resetBtn');
+  const notif = $('notification');
+  const notifTitle = $('notifTitle');
+  const notifBody = $('notifBody');
+  const activityInput = $('activityInput');
+  const notifBtns = $('notifBtns');
+  const activitySection = $('activitySection');
+  const activityList = $('activityList');
+  const timerRing = document.querySelector('.timer-ring');
 
-  const progressCircle = document.getElementById('progressCircle');
-  const timeDisplay = document.getElementById('timeDisplay');
-  const modeLabel = document.getElementById('modeLabel');
-  const startBtn = document.getElementById('startBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const notif = document.getElementById('notification');
-  const circumference = 2 * Math.PI * 130;
-  progressCircle.style.strokeDasharray = circumference;
+  progressCircle.style.strokeDasharray = CIRCUMFERENCE;
 
-  function formatTime(secs) {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    return m + ':' + s;
+  function fmt(secs) {
+    if (secs >= 3600) {
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
+      const s = (secs % 60).toString().padStart(2, '0');
+      return h + ':' + m + ':' + s;
+    }
+    return Math.floor(secs / 60).toString().padStart(2, '0') + ':' + (secs % 60).toString().padStart(2, '0');
+  }
+
+  function applyTheme(m) {
+    const color = MODE_COLORS[m];
+    document.documentElement.style.setProperty('--ring-color', color);
+    timerRing.style.setProperty('--ring-color', color);
+    startBtn.style.setProperty('--btn-primary-bg', color);
   }
 
   function updateDisplay() {
-    timeDisplay.textContent = formatTime(remaining);
-    const progress = 1 - remaining / totalSeconds;
-    progressCircle.style.strokeDashoffset = circumference * progress;
-    const labels = { work: '专注时间', short: '短休息', long: '长休息' };
-    modeLabel.textContent = labels[mode];
+    if (mode === 'free') {
+      timeDisplay.textContent = fmt(elapsed);
+    } else {
+      timeDisplay.textContent = fmt(remaining);
+      const progress = 1 - remaining / totalSeconds;
+      progressCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+    }
+    modeLabel.textContent = MODE_LABELS[mode];
   }
 
   function switchMode(newMode) {
     clearInterval(interval);
     mode = newMode;
-    totalSeconds = settings[mode] * 60;
-    remaining = totalSeconds;
     running = false;
-    startBtn.textContent = '开始';
+    elapsed = 0;
+    if (mode === 'free') {
+      totalSeconds = 0;
+      remaining = 0;
+      startBtn.textContent = '开始';
+      activitySection.classList.add('open');
+      renderLog();
+    } else {
+      totalSeconds = settings[mode] * 60;
+      remaining = totalSeconds;
+      startBtn.textContent = '开始';
+    }
+    applyTheme(mode);
     document.querySelectorAll('.mode-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.mode === mode);
     });
@@ -405,39 +532,101 @@
   }
 
   function tick() {
-    if (remaining > 0) {
-      remaining--;
+    if (mode === 'free') {
+      elapsed++;
       updateDisplay();
     } else {
-      clearInterval(interval);
-      running = false;
-      playBell();
-      if (mode === 'work') {
-        completedPomodoros++;
-        document.getElementById('sessionCount').textContent = completedPomodoros;
-        document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
-        localStorage.setItem('pomodoro_count', completedPomodoros.toString());
-        if (completedPomodoros % settings.longInterval === 0) {
-          showNotification('长休息！', '完成了 ' + completedPomodoros + ' 个番茄，继续休息一下吧');
-        } else {
-          showNotification('短休息！', '完成了 ' + completedPomodoros + ' 个番茄，适当休息一下');
-        }
+      if (remaining > 0) {
+        remaining--;
+        updateDisplay();
       } else {
-        const breakMins = settings[mode];
-        totalBreakMinutes += breakMins;
-        localStorage.setItem('pomodoro_break', totalBreakMinutes.toString());
-        document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
-        showNotification('专注时间！', '休息结束，回到专注状态吧');
+        clearInterval(interval);
+        running = false;
+        playBell();
+        if (mode === 'work') {
+          completedPomodoros++;
+          document.getElementById('sessionCount').textContent = completedPomodoros;
+          document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
+          localStorage.setItem('pomodoro_count', completedPomodoros.toString());
+          showNotif('短休息！', '完成了 ' + completedPomodoros + ' 个番茄', false);
+        } else {
+          const breakMins = settings.short;
+          totalBreakMinutes += breakMins;
+          localStorage.setItem('pomodoro_break', totalBreakMinutes.toString());
+          document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
+          showNotif('专注时间！', '休息结束，回到专注状态', true);
+        }
+        startBtn.textContent = '开始';
       }
-      startBtn.textContent = '开始';
     }
   }
 
-  function showNotification(title, body) {
-    document.getElementById('notifTitle').textContent = title;
-    document.getElementById('notifBody').textContent = body;
-    notif.classList.add('show');
+  function showNotif(title, body, isBreakEnd) {
+    notifTitle.textContent = title;
+    notifBody.textContent = body;
+    activityInput.style.display = 'none';
+    notifBtns.innerHTML = '<button class="btn" id="notifBtn">继续</button>';
+    notif.className = 'notification show' + (isBreakEnd ? '' : ' green');
+    document.getElementById('notifBtn').addEventListener('click', () => {
+      notif.classList.remove('show');
+      switchMode(mode === 'work' ? 'short' : 'work');
+    });
   }
+
+  function showFreeNotif() {
+    notifTitle.textContent = '记录一下';
+    notifBody.textContent = '自由计时结束，刚才在做什么？';
+    activityInput.style.display = 'block';
+    activityInput.value = '';
+    notifBtns.innerHTML = '<button class="btn" id="notifSave">保存</button><button class="btn skip" id="notifSkip">跳过</button>';
+    notif.className = 'notification show';
+    document.getElementById('notifSave').addEventListener('click', saveFreeActivity);
+    document.getElementById('notifSkip').addEventListener('click', () => { notif.classList.remove('show'); elapsed = 0; updateDisplay(); });
+  }
+
+  function saveFreeActivity() {
+    const desc = activityInput.value.trim();
+    const timeStr = new Date().toTimeString().slice(0, 5);
+    const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
+    log.unshift({ desc: desc || '(无描述)', time: timeStr, dur: elapsed });
+    localStorage.setItem('pomodoro_log', JSON.stringify(log));
+    notif.classList.remove('show');
+    elapsed = 0;
+    updateDisplay();
+    renderLog();
+  }
+
+  function renderLog() {
+    const log = JSON.parse(localStorage.getItem('pomodoro_log') || '[]');
+    if (log.length === 0) {
+      activityList.innerHTML = '<div class="empty-log">暂无记录</div>';
+      return;
+    }
+    activityList.innerHTML = log.map((item, i) =>
+      '<div class="activity-item">' +
+        '<span class="activity-desc">' + escapeHtml(item.desc) + '</span>' +
+        '<span class="activity-time">' + item.time + ' · ' + fmt(item.dur) + '</span>' +
+        '<button class="activity-del" data-i="' + i + '">×</button>' +
+      '</div>'
+    ).join('');
+    activityList.querySelectorAll('.activity-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = parseInt(btn.dataset.i);
+        log.splice(i, 1);
+        localStorage.setItem('pomodoro_log', JSON.stringify(log));
+        renderLog();
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('clearLog').addEventListener('click', () => {
+    localStorage.setItem('pomodoro_log', JSON.stringify([]));
+    renderLog();
+  });
 
   startBtn.addEventListener('click', () => {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -454,7 +643,8 @@
 
   resetBtn.addEventListener('click', () => {
     clearInterval(interval);
-    remaining = totalSeconds;
+    if (mode === 'free') elapsed = 0;
+    else remaining = totalSeconds;
     running = false;
     startBtn.textContent = '开始';
     updateDisplay();
@@ -464,39 +654,47 @@
     tab.addEventListener('click', () => switchMode(tab.dataset.mode));
   });
 
-  document.getElementById('settingsToggle').addEventListener('click', () => {
-    document.getElementById('settingsPanel').classList.toggle('open');
+  $('settingsToggle').addEventListener('click', () => {
+    $('settingsPanel').classList.toggle('open');
   });
 
-  ['workDuration', 'shortDuration', 'longDuration', 'longInterval'].forEach(id => {
-    document.getElementById(id).addEventListener('change', (e) => {
-      const key = id.replace('Duration', '').replace('Interval', '');
-      const map = { work: 'work', short: 'short', long: 'long', longInt: 'longInterval' };
-      const k = map[key] || key;
-      settings[k] = parseInt(e.target.value) || 1;
-      localStorage.setItem('pomodoro_settings', JSON.stringify(settings));
-      if (!running) switchMode(mode);
-    });
+  $('workDuration').addEventListener('change', e => {
+    settings.work = parseInt(e.target.value) || 1;
+    localStorage.setItem('pomodoro_settings', JSON.stringify(settings));
+    if (mode === 'work' && !running) { totalSeconds = settings.work * 60; remaining = totalSeconds; updateDisplay(); }
   });
 
-  document.getElementById('notifBtn').addEventListener('click', () => {
-    notif.classList.remove('show');
-    const next = (mode === 'work')
-      ? (completedPomodoros % settings.longInterval === 0 ? 'long' : 'short')
-      : 'work';
-    switchMode(next);
+  $('shortDuration').addEventListener('change', e => {
+    settings.short = parseInt(e.target.value) || 1;
+    localStorage.setItem('pomodoro_settings', JSON.stringify(settings));
+    if (mode === 'short' && !running) { totalSeconds = settings.short * 60; remaining = totalSeconds; updateDisplay(); }
   });
 
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.target.tagName === 'INPUT') return;
     if (e.code === 'Space') { e.preventDefault(); startBtn.click(); }
     else if (e.code === 'KeyR') { resetBtn.click(); }
     else if (e.code === 'Digit1' || e.code === 'Numpad1') { switchMode('work'); }
     else if (e.code === 'Digit2' || e.code === 'Numpad2') { switchMode('short'); }
-    else if (e.code === 'Digit3' || e.code === 'Numpad3') { switchMode('long'); }
+    else if (e.code === 'Digit3' || e.code === 'Numpad3') { switchMode('free'); }
   });
 
+  // Auto-stop free timer after 4 hours as a safety limit
+  // Stop free timer when page visibility changes (tab hidden)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && mode === 'free' && running) {
+      clearInterval(interval);
+      running = false;
+      startBtn.textContent = '继续';
+      showFreeNotif();
+    }
+  });
+
+  applyTheme('work');
   updateDisplay();
+  document.getElementById('sessionCount').textContent = completedPomodoros;
+  document.getElementById('totalMinutes').textContent = completedPomodoros * settings.work;
+  document.getElementById('totalBreakMinutes').textContent = totalBreakMinutes;
 </script>
 </body>
 </html>
